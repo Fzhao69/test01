@@ -1,4 +1,3 @@
-var _ = require('lodash');
 module.exports = function(err, req, res, next) {
     var res_success = (typeof err === 'string' && err === 'res') || (typeof err === "object" && err.hasOwnProperty('res'));
     var method = req.method.toLowerCase();
