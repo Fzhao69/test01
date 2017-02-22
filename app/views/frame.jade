@@ -1,0 +1,32 @@
+doctype html
+html
+	head
+		title 小型仓库管理系统
+		meta(charset='utf-8')
+		meta(http-equiv='X-UA-Compatible' contnet='IE=edge,chrome=1')
+		meta(content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport")
+		link(href="/libs/bootstrap/css/bootstrap.min.css", rel="stylesheet")
+		link(href="/libs/alte/css/font-awesome.min.css", rel="stylesheet")
+		link(href="/libs/alte/css/ionicons.min.css", rel="stylesheet")
+		link(href="/libs/alte/css/AdminLTE.css", rel="stylesheet")
+		link(href="/libs/alte/css/skins/_all-skins.min.css", rel="stylesheet")
+		link(href="/libs/plugins/toast/toastr.min.css", rel="stylesheet")
+		block meta
+	body.hold-transition.skin-blue.fixed.sidebar-mini
+
+		.wrapper
+			block header
+			block leftbar
+
+			.content-wrapper
+				block breadmenu
+				section.content(style="padding:0")
+					block content
+			block footer
+		script(src="/libs/jquery/jquery.min.js" type="text/javascript")
+		script(src="/libs/bootstrap/js/bootstrap.min.js" type="text/javascript")
+		script(src="/libs/plugins/fastclick/fastclick.min.js" type="text/javascript")
+		script(src="/libs/plugins/slimScroll/jquery.slimscroll.min.js" type="text/javascript")
+		script(src="/libs/bootstrap/js/app.min.js" type="text/javascript")
+		script(src="/libs/plugins/toast/toastr.min.js" type="text/javascript")
+		block footerjs

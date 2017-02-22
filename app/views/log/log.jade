@@ -1,0 +1,221 @@
+extends ../layout
+block meta
+	link(href='/libs/plugins/datetimepicker/bootstrap-datetimepicker.min.css',rel='stylesheet')
+block content
+	.row
+		.col-md-12
+			.box.box-info
+				.box-body.table-responsive
+					table#swh-datatable.center-datatable.table.table-bordered.table-hover(cellspacing='0' width='100%')
+block toparea
+	#swh-modal.modal(role="dialog" aria-hidden="true" tabindex="-1")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					button(type='button' class='close' data-dismiss='modal' aria-lable='Close')
+						span(aria-hidden='true') x
+					h4.modal-title 工资管理
+				.modal-body
+					form.form-horizontal(meth='post' role='form')
+						input#order_id(type='hidden' name='order[_id]' value='')
+						.form-group#order_code_item
+							lable.control-lable.col-xs-2(for='order_code') 订单号
+							.col-xs-10
+								input#order_code.form-control(type='text' name='order[order_code]' autocomplete='off' readonly)
+						.form-group
+							lable.control-lable.col-xs-2(for='order_amount') 订单金额
+							.col-xs-10
+								input#order_amount.form-control(type='text' name='order[amount]' autocomplete='off')
+						.form-group#order_status_item
+							lable.control-lable.col-xs-2(for='order_status') 订单状态
+							.col-xs-10
+								select#order_status.form-control(name='order[status]')
+									option(value='0') 处理中
+									option(value='1') 处理成功
+									option(value='2') 处理失败
+									option(value='-1') 订单错误
+						.form-group
+							lable.control-lable.col-xs-2(for='order_remark') 备注
+							.col-xs-10
+								textarea#order_remark.form-control(name='order[remark]' style='height:120px;font-size:18px;' maxlength='100' autocomplete='off')
+						.modal-footer
+							button(type='button' class='btn btn-default mar-rig10' data-dismiss='modal') 关闭
+							button(type='submit' class='btn btn-primary') 保存
+
+	#delModal.modal(role="dialog" aria-hidden="true" tabindex="-1")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					h4.modal-title 你确定删除吗?
+					p 这是一个危险的操作，无法恢复!
+				.modal-footer
+					button(type='button' class='btn btn-default mar-rig10' data-dismiss='modal') 关闭
+					button(type='button' class='btn btn-primary') 确定
+
+
+
+	.extraBtns
+		.pull-right
+			.btn-group-sm.btn-group.mar-rig10
+				label.mar-rig10 生成时间:
+				input#sea_ip2.datetimepicker.form-control(type='text' placeholder='年-月-日')
+				label —
+				input#sea_ip3.datetimepicker.form-control(type='text' placeholder='年-月-日')
+			.btn-group-sm.btn-group.mar-rig10
+				select#sea_sel1.form-control
+					option(value='') 操作结果
+					option(value='1') 成功
+					option(value='0') 失败
+			.btn-group-sm.btn-group.mar-rig10
+				label.mar-rig10 关键字：
+				input#sea_ip1.form-control(type='text' placeholder='操作人/URL')
+			button.btn-flat.btn-info.input-sm.form-control
+				i.fa.fa-fw.fa-search
+				|检索
+
+
+block footerjs
+	script(type='text/javascript' src='/libs/plugins/moment/moment.min.js')
+	script(type='text/javascript' src='/libs/plugins/datetimepicker/bootstrap-datetimepicker.min.js')
+	script(type='text/javascript').
+		$(function(){
+			var $dataTable;
+			var columns = [
+				{
+					target:0,
+					data:null,
+					defaultContent:"",
+					className: 'select-checkbox',
+					orderable:false
+
+				},
+				{
+					target:1,
+					title:"操作人",
+					data:"user",
+					orderable:false
+				},
+				{
+					target:2,
+					title:"URL",
+					data:"path"
+				},
+				{
+					target:3,
+					title:"数据",
+					width:"600px",
+					orderable:false,
+					data:function(item){
+						return "<p style='text-align:left;word-break:break-all'>"+JSON.stringify(item.data) +"</p>";
+					},
+				},{
+					target:4,
+					title:'操作结果',
+					data: function(item){
+						if(item.result)
+							return "<span style='color:green'>成功</span>"
+						return "<span style='color:red;'>失败</span>"
+					}
+				},{
+					target:5,
+					title:"操作时间",
+					data:function(item){
+						return moment.unix(item.time).format("YYYY-MM-DD HH:mm:ss")
+					}
+				}
+			];
+
+			$dataTable = $('#swh-datatable').DataTable({
+				dom:"<'box-header'<'row' <'col-xs-3'B> <'col-xs-9'r> > > t <'row' <'col-xs-6'i><'col-xs-6'p>><'clear'>",
+				ajax:{
+					url:"/log/log",
+					data:{
+						keyValue:"",
+						selectValue:"",
+						timeStart:"",
+						timeEnd:""		
+					}
+				},
+				columns:columns,
+				buttons:[
+					{
+						'text':"<i class='fa fa-plus'></i> 新增",
+						action:function(e,dt,node,conf){
+							addModal();
+						}
+					},
+					{
+						'text':'<i class="fa fa-pencil"></i> 编辑',
+						action:function(e,dt,node,conf){
+							var data = $dataTable.rows(".selected").data();
+							if(data.length===0){
+								 return toastr.error("请选择一条记录进行编辑");
+							}
+							if(data.length>1){
+								 return toastr.error('只能选择一种记录进行编辑')
+							}
+							editModal(data[0]);
+						}
+					},
+					{
+						'text': '<i class="fa fa-trash-o"></i> 删除',
+						action:function(e,dt,node,conf){
+							var data = $dataTable.rows(".selected").data();
+							deleteModal(data);
+						}
+					}
+				]
+			});
+			$('#swh-datatable thead th:nth-child(1)').removeClass('select-checkbox');
+			$('#swh-datatable thead th:nth-child(1)').html('<input id="dt-select-all" type="checkbox" name="select_all" value="1" class="dt-checkbox"><label for="dt-select-all"></label>');
+			$('#swh-datatable tbody').on('click', 'tr', function (e) {
+				var data = $dataTable.row(this).data();
+
+				//给行绑定选中事件
+				if ($(this).hasClass('selected')) {
+					$(this).removeClass('selected');
+					$(this).find("input[type='checkbox']").prop('checked',false);
+				}
+					else {
+					$(this).addClass('selected');
+					$(this).find("input[type='checkbox']").prop('checked',true);
+				}
+
+			});
+			$('#dt-select-all').on('click', function () {
+				var rows = $dataTable.rows({'search': 'applied'}).nodes();
+				$('input[type="checkbox"]', rows).prop('checked', this.checked);
+				if(this.checked)
+					$(rows).addClass('selected');
+				else
+					$(rows).removeClass('selected');
+			});
+
+
+
+
+			$(".box-header .row").children().last().append($(".extraBtns"));
+			$('.datetimepicker').datetimepicker({
+				format: 'YYYY-MM-DD  HH:mm:ss',
+				useCurrent:false,
+				showClear:true,
+				showClose:true
+			});
+			$(".extraBtns .btn-flat").click(function(){
+				var param = {
+					keyValue:$("#sea_ip1").val(),
+					selectValue:$("#sea_sel1").val(),
+					timeStart:"",
+					timeEnd:""
+				}
+				if($('#sea_ip2').val() != '')
+					param.timeStart=Math.round(new Date($('#sea_ip2').val()).getTime() / 1000);
+				if($('#sea_ip3').val() != '')
+					param.timeEnd=Math.round(new Date($('#sea_ip3').val()).getTime() / 1000);
+				console.log(param)
+				$dataTable.settings()[0].ajax.data = param;
+				$dataTable.ajax.reload();
+			});
+		});
+
+

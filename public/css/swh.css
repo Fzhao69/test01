@@ -1,0 +1,44 @@
+body{background-color: transparent;min-height: 500px;}
+.center-datatable th{text-align: center;}
+.center-datatable{text-align: center;}
+.mar-rig10{margin-right: 10px;}
+.dt-button{
+	background-color: #769AAE;
+	margin-right: 10px;
+	margin-bottom: 5px;
+	padding: 5px 7px;
+	border-radius: 5px;
+	box-shadow: none;
+	border: 1px solid transparent;
+	text-align: center;
+	white-space: nowrap;
+	font-weight: 400;
+	letter-spacing: 2px;
+	font-size: 12px;
+	display: inline-block;
+	line-height: 1.5;
+}
+
+
+.dt-buttons span{color:#FFF;}
+.dt-checkbox{display: none;}
+.dt-checkbox + label{margin:0;width: 16px;height: 16px;display: inline-block;position:relative;border:1px solid black; border-radius: 3px;}
+.dt-checkbox:checked + label::after{position: absolute;margin-top:-2px;left: 0;content:'\2713';color:white;width: 12px;height: 6px;text-align: center;text-shadow: rgb(176, 190, 217) 1px 1px, rgb(176, 190, 217) -1px -1px, rgb(176, 190, 217) 1px -1px, rgb(176, 190, 217) -1px 1px}
+#swh-datatable tbody .select-checkbox::before{width: 16px;height: 16px;margin-left: -8px;margin-top: -8px;}
+#swh-datatable tbody .select-checkbox::after{margin-left: -5px;}
+#swh-datatable thead th:nth-child(1).sorting_asc{padding-right:8px}
+#swh-datatable thead th:nth-child(1).sorting_asc::after{display: none}
+
+/*数字输入框不要箭头*/
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance: none !important;}
+input[type="number"]{-moz-appearance:textfield;}
+
+#delModal .modal-title{margin: initial;color: red; font-size: 20px;letter-spacing: 2px;}
+#delModal .modal-header{border:none;text-align: center;}
+#delModal .modal-header p{font-size: 10px;color: grey;margin-top: 10px;margin-bottom: 10px;}
+#delModal .modal-footer{border:none;}
+
+@media screen and (min-width: 768px) {
+	#delModal .modal-dialog {width:450px;}
+}
+

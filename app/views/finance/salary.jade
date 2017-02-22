@@ -1,0 +1,281 @@
+extends ../layout
+block content
+	.row
+		.col-md-12
+			.box.box-info
+				.box-body.table-responsive
+					table#swh-datatable.center-datatable.table.table-bordered.table-hover(cellspacing='0' width='100%')
+block toparea
+	#swh-modal.modal(role="dialog" aria-hidden="true" tabindex="-1")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					button(type='button' class='close' data-dismiss='modal' aria-lable='Close')
+						span(aria-hidden='true') x
+					h4.modal-title 工资管理
+				.modal-body
+					form.form-horizontal(meth='post' role='form')
+						input#salary_id(type='hidden' name='salary[_id]' value='')
+						.form-group
+							lable.control-lable.col-xs-2(for='salary_name') 员工名称
+							.col-xs-10
+								input#salary_name.form-control(type='text' name='salary[name]' autocomplete='off')
+						.form-group
+							lable.control-lable.col-xs-2(for='salary_job') 员工职位
+							.col-xs-10
+								input#salary_job.form-control(type='text' name='salary[job]' autocomplete='off')
+						.form-group
+							lable.control-lable.col-xs-2(for='salary_salary') 员工工资
+							.col-xs-10
+								input#salary_salary.form-control(type='text' name='salary[salary]' autocomplete='off')
+						.form-group
+							lable.control-lable.col-xs-2(for='salary_remark') 备注
+							.col-xs-10
+								textarea#salary_remark.form-control(name='salary[remark]' style='height:120px;font-size:18px;' maxlength='100' autocomplete='off')
+						.modal-footer
+							button(type='button' class='btn btn-default mar-rig10' data-dismiss='modal') 关闭
+							button(type='submit' class='btn btn-primary') 保存
+
+	#delModal.modal(role="dialog" aria-hidden="true" tabindex="-1")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					h4.modal-title 你确定删除吗?
+					p 这是一个危险的操作，无法恢复!
+				.modal-footer
+					button(type='button' class='btn btn-default mar-rig10' data-dismiss='modal') 关闭
+					button(type='button' class='btn btn-primary') 确定
+	.extraBtns
+		.pull-right
+			.btn-group-sm.btn-group.mar-rig10
+				label.mar-rig10 关键字：
+				input#sea_ip1.form-control(type='text' placeholder='员工名称/员工职位')
+			button.btn-flat.btn-info.input-sm.form-control
+				i.fa.fa-fw.fa-search
+				|检索
+
+
+block footerjs
+	script(type='text/javascript').
+		$(function(){
+			var modal = $('#swh-modal');
+			var $form = modal.find('form');
+			var modalTitle = modal.find('.modal-title');
+			var $dataTable,
+				submitUrl;
+
+
+			function addModal(){
+				submitUrl = '/finance/salary_add'; 
+				modalTitle.html('新增工资信息');
+				modal.find('input').val("");
+				modal.find('textarea').val();
+				modal.modal();
+			};
+			function editModal(data){
+				submitUrl = '/finance/salary_edit';
+				$("#salary_id").val(data._id);
+				$("#salary_name").val(data.name);
+				$('#salary_job').val(data.job);
+				$("#salary_salary").val((data.salary/100).toFixed(2));
+				$("#salary_remark").val(data.remark);
+				modal.modal();
+			}
+			function deleteModal(data){
+				var delModal = $('#delModal');
+				var oData = {_ids:[]};
+				for(var i =0;i<data.length;i++){
+					oData._ids.push(data[i]._id);
+				}
+				delModal.modal();
+				delModal.find('.btn-primary').click(function(){
+					$.ajax({
+						type:'delete',
+						url:"/finance/salary_delete",
+						data:oData,
+						success:function(result){
+							if(result.error==0){
+								delModal.modal("hide");
+								$dataTable.ajax.reload();
+								return toastr.success("员工资料删除成功");
+							}
+							//- toastr.error(result.error_message);
+							toastr.error("请求出错")
+						}	
+					})
+				})
+			}
+
+
+
+			$form.bootstrapValidator({
+				message:"该值不可用",
+				feedbackIcons:{
+					valid: 'glyphicon glyphicon-ok',
+					invalid: 'glyphicon glyphicon-remove',
+					validating: 'glyphicon glyphicon-refresh'
+				},
+				fields:{
+					"salary[name]":{
+						message:"",
+						validators:{
+							notEmpty:{
+								message:'员工名称不能为空'
+							}
+						}
+					},
+					"salary[job]":{
+						validators:{
+							notEmpty:{
+								message:"员工职位不能为空"
+							}
+						}
+					},
+					"salary[salary]":{
+						validators:{
+							numeric:{
+								message:'员工工资必须为数字'
+							}
+						}
+					}
+				}
+			}).on('success.form.bv',function(e){
+				e.preventDefault();
+				$.ajax({
+					type:"post",
+					url:submitUrl,
+					data:$form.serialize(),
+					success:function (result){
+					console.log(result)
+						if(result.error == 0){
+							modal.modal('hide');
+							$form.data('bootstrapValidator').resetForm(true); //清除表单验证
+							$dataTable.ajax.reload();
+							return toastr.success('员工信息修改成功');
+						}
+						if(result.error == 1){
+							$form.data('bootstrapValidator').resetForm(true); //清除表单验证
+							return toastr.error(result.error_message);
+						}
+						toastr.error('请求错误');
+					}
+					
+				})
+			})
+
+			var columns = [
+				{
+					target:0,
+					data:null,
+					defaultContent:"",
+					className: 'select-checkbox',
+					orderable:false
+
+				},
+				{
+					target:1,
+					title:"员工名称",
+					data:"name"
+				},
+				{
+					target:2,
+					title:"员工职位",
+					data:"job"
+				},
+
+				{
+					target:3,
+					title:"员工工资",
+					data:function(item){
+						return (item.salary/100).toFixed(2);
+					},
+				},
+				{
+					target:4,
+					title:"备注",
+					data:"remark"
+				}
+			];
+
+			$dataTable = $('#swh-datatable').DataTable({
+				dom:"<'box-header'<'row' <'col-xs-6'B> <'col-xs-6'r> > > t <'row' <'col-xs-6'i><'col-xs-6'p>><'clear'>",
+				ajax:{
+					url:"/finance/salary",
+					data:{
+						keyValue:""
+					}
+				},
+				columns:columns,
+				buttons:[
+					{
+						'text':"<i class='fa fa-plus'></i> 新增",
+						action:function(e,dt,node,conf){
+							addModal();
+						}
+					},
+					{
+						'text':'<i class="fa fa-pencil"></i> 编辑',
+						action:function(e,dt,node,conf){
+							var data = $dataTable.rows(".selected").data();
+							if(data.length===0){
+								 return toastr.error("请选择一条记录进行编辑");
+							}
+							if(data.length>1){
+								 return toastr.error('只能选择一种记录进行编辑')
+							}
+							editModal(data[0]);
+						}
+					},
+					{
+						'text': '<i class="fa fa-trash-o"></i> 删除',
+						action:function(e,dt,node,conf){
+							var data = $dataTable.rows(".selected").data();
+							deleteModal(data);
+						}
+					}
+				]
+			});
+			$('#swh-datatable thead th:nth-child(1)').removeClass('select-checkbox');
+			$('#swh-datatable thead th:nth-child(1)').html('<input id="dt-select-all" type="checkbox" name="select_all" value="1" class="dt-checkbox"><label for="dt-select-all"></label>');
+			
+
+
+			$('#swh-datatable tbody').on('click', 'tr', function (e) {
+				var data = $dataTable.row(this).data();
+
+				//给行绑定选中事件
+				if ($(this).hasClass('selected')) {
+					$(this).removeClass('selected');
+					$(this).find("input[type='checkbox']").prop('checked',false);
+				}
+					else {
+				//tb.$('tr.selected').removeClass('selected');
+					$(this).addClass('selected');
+					$(this).find("input[type='checkbox']").prop('checked',true);
+				}
+
+			});
+			
+
+
+			$('#dt-select-all').on('click', function () {
+				var rows = $dataTable.rows({'search': 'applied'}).nodes();
+				$('input[type="checkbox"]', rows).prop('checked', this.checked);
+				if(this.checked)
+					$(rows).addClass('selected');
+				else
+					$(rows).removeClass('selected');
+
+			});
+			$(".box-header .row").children().last().append($(".extraBtns"));
+			$(".extraBtns .btn-flat").click(function(){
+				var param = {
+					keyValue:$("#sea_ip1").val()
+				}
+				$dataTable.settings()[0].ajax.data = param;
+				$dataTable.ajax.reload();
+			});
+
+		});
+
+

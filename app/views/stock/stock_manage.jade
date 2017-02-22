@@ -1,0 +1,432 @@
+extends ../layout
+block meta
+	link(href='/libs/plugins/datetimepicker/bootstrap-datetimepicker.min.css',rel='stylesheet')
+block content
+	.row
+		.col-md-12
+			.box.box-info
+				.box-body.table-responsive
+					table#swh-datatable.center-datatable.table.table-bordered.table-hover(cellspacing='0' width='100%')
+block toparea
+	#swh-modal.modal(role="dialog" aria-hidden="true" tabindex="-1")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					button(type='button' class='close' data-dismiss='modal' aria-lable='Close')
+						span(aria-hidden='true') x
+					h4.modal-title 库存管理
+				.modal-body
+					form.form-horizontal(meth='post' role='form')
+						input#stock_id(type='hidden' name='stock[_id]' value='')
+						.form-group
+							lable.control-lable.col-xs-2(for='stock_name') 名称
+							.col-xs-10
+								input#stock_name.form-control(type='text' name='stock[name]' autocomplete='off')
+						.form-group
+							lable.control-lable.col-xs-2(for='stock_code') 商品编码
+							.col-xs-10
+								input#stock_code.form-control(type='text' name='stock[code]' autocomplete='off')
+						.form-group
+							lable.control-lable.col-xs-2(for='stock_original_price') 商品原价
+							.col-xs-10
+								input#stock_original_price.form-control(type='text' name='stock[original_price]' autocomplete='off')
+						.form-group
+							lable.control-lable.col-xs-2(for='stock_selling_price') 商品售价
+							.col-xs-10
+								input#stock_selling_price.form-control(type='text' name='stock[selling_price]' autocomplete='off')
+						.form-group#stock_surplus_item
+							lable.control-lable.col-xs-2(for='stock_surplus' id='stock_surplus_lable') 商品剩余量
+							.col-xs-10
+								input#stock_surplus.form-control(type='text' name='stock[surplus]' autocomplete='off')
+						.form-group
+							lable.control-lable.col-xs-2(for='stock_total') 商品总数量
+							.col-xs-10
+								input#stock_total.form-control(type='text' name='stock[total]' autocomplete='off')
+						.form-group
+							lable.control-lable.col-xs-2(for='stock_remark') 备注
+							.col-xs-10
+								textarea#stock_remark.form-control(name='stock[remark]' style='height:120px;font-size:18px;' maxlength='100' autocomplete='off')
+						//-本月出入库利润
+						input#stock_amount(type='hidden' name='stock[amount]' value='')
+						.modal-footer
+							button(type='button' class='btn btn-default mar-rig10' data-dismiss='modal') 关闭
+							button(type='submit' class='btn btn-primary') 保存
+
+	#delModal.modal(role="dialog" aria-hidden="true" tabindex="-1")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					h4.modal-title 你确定删除吗?
+					p 这是一个危险的操作，无法恢复!
+				.modal-footer
+					button(type='button' class='btn btn-default mar-rig10' data-dismiss='modal') 关闭
+					button(type='button' class='btn btn-primary') 确定
+
+
+	.extraBtns
+		.pull-right
+			.btn-group-sm.btn-group.mar-rig10
+				label.mar-rig10 生成时间:
+				input#sea_ip2.datetimepicker.form-control(type='text' placeholder='年-月-日')
+				label —
+				input#sea_ip3.datetimepicker.form-control(type='text' placeholder='年-月-日')
+			.btn-group-sm.btn-group.mar-rig10
+				label.mar-rig10 关键字：
+				input#sea_ip1.form-control(type='text' placeholder='订单号')
+			button.btn-flat.btn-info.input-sm.form-control
+				i.fa.fa-fw.fa-search
+				|检索
+
+
+
+block footerjs
+	script(type='text/javascript' src='/libs/plugins/moment/moment.min.js')
+	script(type='text/javascript' src='/libs/plugins/datetimepicker/bootstrap-datetimepicker.min.js')
+	script(type='text/javascript').
+		$(function(){
+			var modal = $('#swh-modal');
+			var $form = modal.find('form');
+			var modalTitle = modal.find('.modal-title');
+			var $dataTable,
+				submitUrl;
+
+
+			function addModal(){
+				submitUrl = '/stock/stock_manage_add'; 
+				modalTitle.html('新增商品');
+				$('#stock_total').parent().prev().html("商品总数量");
+				modal.find('input').removeAttr("readonly").val("");
+				$('#stock_surplus_item').hide();
+				modal.find('textarea').val("");
+				modal.modal();
+			};
+
+			function plusAndMinus(name,data){
+				var lable = $('#stock_surplus_lable');
+				$('#stock_surplus_item').show();
+				if(name=='plus'){
+					submitUrl = '/stock/stock_manage_plus';
+					lable.html("商品入库数");
+					$('#stock_total').parent().prev().html("商品总数量");
+					modalTitle.html('商品入库');
+					$("#stock_total").val(data.total).attr('readonly',true);
+				}else{
+					submitUrl = '/stock/stock_manage_minus';
+					lable.html("商品出库数");
+					$('#stock_total').parent().prev().html("商品剩余数");
+					$("#stock_total").val(data.surplus).attr('readonly',true);
+					modalTitle.html('商品出库');
+				}
+				//填充数据
+				$("#stock_id").val(data._id);
+				$('#stock_name').val(data.name).attr('readonly',true);
+				$('#stock_code').val(data.code).attr('readonly',true);
+				$('#stock_original_price').val((data.original_price/100).toFixed(2)).attr('readonly',true);
+				$('#stock_selling_price').val((data.selling_price/100).toFixed(2)).attr('readonly',true);
+				$('#stock_surplus').val("").removeAttr('readonly');
+				$("#stock_remark").val(data.remark).attr('readonly',true);
+				$('#stock_amount').val((data.amount/100).toFixed(2));
+				
+				modal.modal();
+			};
+
+			function editModal(data){
+				submitUrl = '/stock/stock_manage_edit';
+				modalTitle.html("商品编辑");
+				$('#stock_total').parent().prev().html("商品总数量");
+				var lable = $("#stock_surplus_lable");
+				$('#stock_surplus_item').show();
+				lable.html('商品剩余量');
+				modal.find('input').removeAttr("readonly");
+				$("#stock_remark").removeAttr('readonly');
+				//填充数据
+				$("#stock_id").val(data._id);
+				$('#stock_name').val(data.name);
+				$('#stock_code').val(data.code);
+				$('#stock_original_price').val((data.original_price/100).toFixed(2));
+				$('#stock_surplus').val(data.surplus).attr('readonly',true);
+				$('#stock_selling_price').val((data.selling_price/100).toFixed(2));
+				$("#stock_total").val(data.total).attr('readonly',true);
+				modal.modal();
+			};
+			function deleteModal(data){
+				var delModal = $('#delModal');
+				var oData = {_ids:[],names:[]};
+
+				for(var i =0;i<data.length;i++){
+					oData._ids.push(data[i]._id);
+					oData.names.push(data[i].name);
+				}
+				delModal.modal();
+				delModal.find(".btn-primary").one('click',function(){
+					$.ajax({
+						type:'delete',
+						url:"/stock/stock_manage_delete",
+						data:oData,
+						success:function(result){
+							if(result.error==0){
+								delModal.modal("hide");
+								$dataTable.ajax.reload();
+								return toastr.success("商品删除成功");
+							}
+							//- toastr.error(result.error_message);
+							toastr.error("请求出错")
+						}	
+					})
+				})
+			};
+			$form.bootstrapValidator({
+				message:"该值不可用",
+				feedbackIcons:{
+					valid: 'glyphicon glyphicon-ok',
+					invalid: 'glyphicon glyphicon-remove',
+					validating: 'glyphicon glyphicon-refresh'
+				},
+				fields:{
+					"stock[name]":{
+						message:"商品名称失败",
+						validators:{
+							notEmpty:{
+								message:'商品名称不能为空'
+							}
+						}
+					},
+					"stock[code]":{
+						validators:{
+							notEmpty:{
+								message:"商品编码不能为空"
+							}
+						}
+					},
+					"stock[original_price]":{
+						validators:{
+							numeric:{
+								message:'商品原价必须为数字'
+							}
+						}
+					},
+					"stock[selling_price]":{
+						validators:{
+							numeric:{
+								message:'商品售价必须为数字'
+							}
+						}
+					},
+					"stock[change]":{
+						validators:{
+							numeric:{
+								message:'商品出入库数量必须为数字'
+							}
+						}
+					},
+					"stock[total]":{
+						validators:{
+							numeric:{
+								message:'商品总数量必须为数字'
+							}
+						}
+					}
+				}
+			}).on('success.form.bv',function(e){
+				e.preventDefault();
+				$.ajax({
+					type:"post",
+					url:submitUrl,
+					data:$form.serialize(),
+					success:function (result){
+						if(result.error == 0){
+							modal.modal('hide');
+							$form.data('bootstrapValidator').resetForm(true); //清除表单验证
+							$dataTable.ajax.reload();
+							if(submitUrl.match('add')){
+								return toastr.success("商品信息新增成功")
+							}
+							return toastr.success('商品信息修改成功');
+						}
+						if(result.error == 1){
+							$form.data('bootstrapValidator').resetForm(true); //清除表单验证
+							return toastr.error(result.error_message);
+						}
+						//- toastr.error(result.error_message);
+						toastr.error('请求错误');
+					}
+					
+				})
+			});
+
+			var columns = [
+				{
+					target:0,
+					data:null,
+					defaultContent:"",
+					className: 'select-checkbox',
+					orderable:false,
+				},
+				{
+					target:1,
+					title:"商品名称",
+					data:"name",
+					orderable:false,
+				},
+				{
+					target:2,
+					title:"商品编码",
+					data:"code",
+					orderable:false,
+				},
+				{
+					target:3,
+					title:"商品原价",
+					data:function(item){
+						return (item.original_price/100).toFixed(2)
+					}
+				},
+				{
+					target:4,
+					title:'商品售价',
+					data:function(item){
+						return (item.selling_price/100).toFixed(2);
+					}
+				},
+				{
+					target:5,
+					title:"商品剩余量",
+					data:"surplus",
+				},
+				{
+					target:6,
+					title:"商品总数量",
+					data:"total",
+				},{
+					target:7,
+					title:"商品添加时间",
+					data:function(item){
+						return moment.unix(item.create_time).format('YYYY-MM-DD HH:mm:ss');
+					}
+				},
+				{
+					target:7,
+					title:"备注",
+					data:"remark",
+					orderable:false
+				}
+			];
+
+			$dataTable = $('#swh-datatable').DataTable({
+				dom:"<'box-header'<'row' <'col-xs-4'B> <'col-xs-8'r> > > t <'row' <'col-xs-6'i><'col-xs-6'p>><'clear'>",
+				ajax:{
+					url:"/stock/stock_manage",
+					data:{
+						keyValue:"",
+						timeStart:"",
+						timeEnd:""
+					}
+				},
+				ordering:true,
+
+				columns:columns,
+				buttons:[
+					{
+						'text':"<i class='fa fa-inbox'></i> 新增商品",
+						action:function(e,dt,node,conf){
+							addModal();
+						}
+					},
+					{
+						'text':'<i class="fa fa-plus"></i> 入库',
+						action:function(e,dt,node,conf){
+							var data = $dataTable.rows(".selected").data();
+							if(data.length===0){
+								 return toastr.error("请选择一种商品进行入库操作");
+							}
+							if(data.length>1){
+								 return toastr.error('只能选择一种商品进行入库操作')
+							}
+							plusAndMinus('plus',data[0]);
+						}
+					},
+					{
+						'text':'<i class="fa fa-minus"></i> 出库',
+						action:function(e,dt,node,conf){
+							var data = $dataTable.rows(".selected").data();
+							if(data.length===0){
+								 return toastr.error("请选择一种商品进行出库操作");
+							}
+							if(data.length>1){
+								 return toastr.error('只能选择一种商品进行出库操作')
+							}
+							plusAndMinus('minus',data[0]);
+						}
+					},{
+						'text':'<i class="fa fa-pencil"></i> 编辑',
+						action:function(e,dt,node,conf){
+							var data = $dataTable.rows(".selected").data();
+							if(data.length===0){
+								 return toastr.error("请选择一种商品进行编辑");
+							}
+							if(data.length>1){
+								 return toastr.error('只能选择一种商品进行编辑')
+							}
+							editModal(data[0]);
+						}
+					},
+					{
+						'text': '<i class="fa fa-trash-o"></i> 删除',
+						action:function(e,dt,node,conf){
+							var data = $dataTable.rows(".selected").data();
+							deleteModal(data);
+						}
+					}
+				]
+			});
+
+			$(".box-header .row").children().last().append($(".extraBtns"));
+			$('#swh-datatable thead th:nth-child(1)').removeClass('select-checkbox');
+			$('#swh-datatable thead th:nth-child(1)').html('<input id="dt-select-all" type="checkbox" name="select_all" value="1" class="dt-checkbox"><label for="dt-select-all"></label>');
+			$('#swh-datatable tbody').on('click', 'tr', function (e) {
+				var data = $dataTable.row(this).data();
+
+				//给行绑定选中事件
+				if ($(this).hasClass('selected')) {
+					$(this).removeClass('selected');
+					$(this).find("input[type='checkbox']").prop('checked',false);
+				}
+					else {
+					$(this).addClass('selected');
+					$(this).find("input[type='checkbox']").prop('checked',true);
+				}
+
+			});
+			$('#dt-select-all').on('click', function () {
+				var rows = $dataTable.rows({'search': 'applied'}).nodes();
+				console.log(this)
+				$('input[type="checkbox"]', rows).prop('checked', this.checked);
+				if(this.checked)
+					$(rows).addClass('selected');
+				else
+					$(rows).removeClass('selected');
+			});
+			$('.datetimepicker').datetimepicker({
+				format: 'YYYY-MM-DD  HH:mm:ss',
+				useCurrent:false,
+				showClear:true,
+				showClose:true
+			});
+			$(".extraBtns .btn-flat").click(function(){
+				var param = {
+					keyValue:$("#sea_ip1").val(),
+					timeStart:"",
+					timeEnd:""
+				}
+				if($('#sea_ip2').val() != '')
+					param.timeStart=Math.round(new Date($('#sea_ip2').val()).getTime() / 1000);
+				if($('#sea_ip3').val() != '')
+					param.timeEnd=Math.round(new Date($('#sea_ip3').val()).getTime() / 1000);
+				console.log(param)
+				$dataTable.settings()[0].ajax.data = param;
+				$dataTable.ajax.reload();
+			});
+
+		});
+
+

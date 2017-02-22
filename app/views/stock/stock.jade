@@ -1,0 +1,144 @@
+extends ../layout
+block meta
+	link(href='/libs/plugins/datetimepicker/bootstrap-datetimepicker.min.css',rel='stylesheet')
+block content
+	.row
+		.col-md-12
+			.box.box-info
+				.box-body.table-responsive
+					table#swh-datatable.center-datatable.table.table-bordered.table-hover(cellspacing='0' width='100%')
+block toparea
+	.extraBtns
+		.pull-right
+			.btn-group-sm.btn-group.mar-rig10
+				label.mar-rig10 操作时间:
+				input#sea_ip2.datetimepicker.form-control.mar-rig10(type='text' placeholder='年-月-日')
+				label.mar-rig10 —
+				input#sea_ip3.datetimepicker.form-control(type='text' placeholder='年-月-日')
+			.btn-group-sm.btn-group.mar-rig10
+				select#sea_sel1.form-control
+					option(value='stock_manage') 操作方式
+					option(value='stock_manage_add') 新增
+					option(value='stock_manage_edit') 编辑
+					option(value='stock_manage_delete') 删除
+					option(value='stock_manage_plus') 入库
+					option(value='stock_manage_minus') 出库
+			.btn-group-sm.btn-group.mar-rig10
+				label.mar-rig10 关键字：
+				input#sea_ip1.form-control(type='text' placeholder='商品名称/操作人')
+			button.btn-flat.btn-info.input-sm.form-control
+				i.fa.fa-fw.fa-search
+				|检索
+
+
+
+block footerjs
+	script(type='text/javascript' src='/libs/plugins/moment/moment.min.js')
+	script(type='text/javascript' src='/libs/plugins/datetimepicker/bootstrap-datetimepicker.min.js')
+	script(type='text/javascript').
+		$(function(){
+			var $dataTable;
+			var columns = [
+				{
+					target:0,
+					title:"商品名称",
+					data:"commodity",
+					orderable:false,
+				},
+				{
+					target:1,
+					title:"操作方式",
+					data:null,
+					render:function(data,type,full,meta){
+						var path = full.path;
+						if(path.match('edit')){
+							return "编辑";
+						}else if(path.match("delete")){
+							return '删除';
+						}else if(path.match('add')){
+							return '新增';
+						}else if(path.match('plus')){
+							return '入库';
+						}else{
+							return '出库';
+						}
+					}
+				},
+				{
+					target:2,
+					title:"出入库数量",
+					data:null,
+					orderable:false,
+					render:function(data,type,full,meta){
+						if(full.path.match('edit') || full.path.match('delete') || full.path.match("add")){
+							return '—';
+						}else{
+							return full.number
+						}
+					}
+				},
+				{
+					target:3,
+					title:"操作人",
+					data:"user",
+					orderable:false,
+				},
+				{
+					target:4,
+					title:"操作结果",
+					data: function(item){
+							if(item.result)
+								return "<span style='color:green'>成功</span>"
+							return "<span style='color:red;'>失败</span>"
+					}
+				},
+				{
+					target:5,
+					title:"时间",
+					data:function(item){
+						return moment.unix(item.time).format('YYYY-MM-DD HH:mm:ss');
+					}
+				},
+			];
+
+			$dataTable = $('#swh-datatable').DataTable({
+				dom:"<'box-header'<'row'<'col-xs-12'r> > > t <'row' <'col-xs-6'i><'col-xs-6'p>><'clear'>",
+				ajax:{
+					url:"/stock/stock",
+					data:{
+						keyValue:"",
+						selectValue:"stock_manage",
+						timeStart:"",
+						timeEnd:""
+					}
+				},
+				ordering:true,
+				columns:columns
+				});
+
+			$(".box-header .row").children().last().append($(".extraBtns"));
+			$('.datetimepicker').datetimepicker({
+				format: 'YYYY-MM-DD  HH:mm:ss',
+				useCurrent:false,
+				showClear:true,
+				showClose:true
+			});
+			$(".extraBtns .btn-flat").click(function(){
+				var param = {
+					keyValue:$("#sea_ip1").val(),
+					selectValue:$("#sea_sel1").val(),
+					timeStart:"",
+					timeEnd:""
+				}
+				if($('#sea_ip2').val() != '')
+					param.timeStart=Math.round(new Date($('#sea_ip2').val()).getTime() / 1000);
+				if($('#sea_ip3').val() != '')
+					param.timeEnd=Math.round(new Date($('#sea_ip3').val()).getTime() / 1000);
+				//- console.log(param)
+				$dataTable.settings()[0].ajax.data = param;
+				$dataTable.ajax.reload();
+			});
+
+		});
+
+

@@ -1,0 +1,199 @@
+extends frame
+block meta
+	style.
+		.sidebar .treeview{
+			line-height:30px;
+		}
+		#pswEditModel .modal-content{
+			text-align:center;
+			border:none;
+			box-shadow:none
+		}
+		#pswEditModel input{
+			display:block;
+			width:300px;
+			font-size:20px;
+			border:1px solid #90BCCE;
+			border-radius:10px;
+			margin:10px auto 10px auto;
+			outline:none;
+			padding:5px 10px;
+		}
+		.navbar>.navbar-custom-menu .dropdown-menu .user-header{
+			height:100px!important;
+		}
+		.navbar>.navbar-custom-menu .dropdown-menu .user-header p{font-size:18px!important;}
+		.navbar>.navbar-custom-menu .dropdown-menu .user-header small{font-size:14px!important;}
+block header
+	header.main-header
+		a.logo.link-btn(href="javascript:void(0)" onclick="jump(this)" data-href="/show_main_view" data-mod="系统首页" data-act="默认看板")
+			span.logo-mini
+				b SMH
+			span.logo-lg
+				b 小型仓库管理系统
+		nav.navbar.navbar-static-top
+			a.sidebar-toggle(href='#' data-toggle='offcanvas' role='button')
+				span.sr-only 触发导航
+			.navbar-custom-menu
+				ul.nav.navbar-nav
+					li.dropdown.user.user-menu
+						a.dropdown-toggle(href="#" data-toggle='dropdown')
+							img.user-image(src='/libs/alte/img/user2-160x160.jpg')
+							span.hidden-xs#user_name admin
+						ul.dropdown-menu
+							li.user-header
+								p#user_name2 admin
+									small#user_description 超级管理员
+							li.user-footer
+								.pull-left
+									a.btn.btn-default.btn-flat#pswEdit(href='/user/pswEdit') 修改密码
+								.pull-right
+									a.btn.btn-default.btn-flat(href='/login/logout') 退出登陆
+
+
+block leftbar
+	aside.main-sidebar
+		section.sidebar
+			ul.sidebar-menu
+				li.header 菜单导航
+				each menu,i in menus
+					-var menu_cls = i === 0 ? 'treeview active' : "treeview";
+					li(class="#{menu_cls}")
+						a(href = 'javascript:void(0)')
+							i(class='fa #{menu.icon}')
+							span #{menu.text}
+							span.pull-right-container
+								i.fa.fa-angle-left.pull-right
+						ul.treeview-menu
+							if menu.children
+								each sub in menu.children
+									li
+										a(href='javascript:void(0)' onclick="jump(this)" data-href=sub.href data-mod=menu.text data-act = sub.text).
+											<i class='fa fa-circle-o'></i> #{sub.text}
+
+				li.header 用户管理
+				li.a_hide
+					a(href='/user/user' target='content-frame')
+						i.fa.fa-user 
+						span 用户信息
+				li.a_hide
+					a(href='/log/log' target='content-frame')
+						i.fa.fa-user 
+						span 日志大全
+
+
+block breadmenu
+	section.content-header
+		h1 系统首页
+			small 默认看板
+		ol.breadcrumb
+			li
+				a.link-btn(href="javascript:void(0)" onclick="jump(this)" data-href="/show_main_view" data-mod="系统首页" data-act="默认看板").
+					<i class="fa  fa-home"></i> 首页
+			li 默认看板
+			li(style="display:none;")
+
+block content
+	iframe#content-frame(src='/show_main_view' frameborder="0" style="width:100%; height: 100%;"  name="content-frame")
+	#pswEditModel.modal(role="dialog" aria-hidden="true" tabindex="-1")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					h4.modal-title 修改密码
+				.modal-content
+					input#psw_1(type='password' placeholder='请输入六位密码')
+					input#psw_2(type='password' placeholder='请再输入密码')
+				.modal-footer
+					p#psw_tip(type='hidden' style='color:red')
+					button(type='button' class='btn btn-default mar-rig10' data-dismiss='modal') 关闭
+					button(type='button' class='btn btn-primary') 确定
+
+block footer
+	footer.main-footer
+		.pull-right.hidden-xs.
+			<b>Version</b> 1.0.0
+		strong.
+			Copyright &copy; 2017 <span style='color:blue'> wangyf </span>.</strong>
+			All rights reserved.
+
+
+
+block footerjs
+	script(type='text/javascript').
+		function jump(obj){
+			var url = $(obj).data("href");
+			var module = $(obj).data('mod');
+			var action = $(obj).data("act");
+			$(".content-header>h1").html(module + "<small>" + action + "</small>");
+
+			if (~url.indexOf("show_main_view")) {
+				$(".breadcrumb li").eq(1).html(action);
+				$(".breadcrumb li").eq(2).hide();
+			}else{
+				$(".breadcrumb li").eq(1).html(module);
+				$(".breadcrumb li").eq(2).html(action);
+				$(".breadcrumb li").eq(2).show();
+			}
+
+			$("#content-frame").attr("src",url);
+		}
+
+		$('.a_hide').click(function(e){
+			e.stopPropagation();
+			$('.content-header').hide();
+		})
+		$(document).click(function(){
+			$('.content-header').show();
+		})
+
+		setContentHeight();
+		$(window).resize(setContentHeight);
+
+		function setContentHeight(){
+			var menuheight = $(".content-header").outerHeight();
+			$(".content").height(($(window).height() - 131 - menuheight) + "px");
+		}
+		$(function(){
+			$.ajax({
+				method:'get',
+				url:"/user/message",
+				success:function(result){
+					$("#user_name").html(result.data.name);
+					$("#user_name2").html(result.data.name);
+					$("#user_description").html(result.data.description);
+				}
+			});
+
+			$('#pswEdit').click(function(e){
+				e.preventDefault();
+				$('#pswEditModel').modal();
+				});
+				$('#pswEditModel').find(".btn-primary").click(function(){
+				if($('#psw_1').val().length !== 6){
+					return toastr.error("密码长度为6位数，请重新输入");
+				}
+				if($("#psw_1").val() !== $('#psw_2').val()){
+					toastr.error("两次密码不同，请重新输入")
+					$('#psw_1').val("");
+					$('#psw_2').val("");
+				}else{
+					$.ajax({
+						method:"post",
+						url:"/user/changepsw",
+						data:{password:$('#psw_1').val()},
+						success:function(result){
+							if(result.error == 0){
+								$("#pswEditModel").modal("hide");
+								return toastr.success("密码修改成功");
+							}
+							toastr.error("请求出错");
+						}
+					})
+				}
+			})
+			//- 提示框初始化
+			toastr.options.positionClass = 'toast-bottom-center';
+			toastr.options.progressBar = true;
+			toastr.options.timeOut = 2000;      
+			toastr.options.extendedTimeOut = 500;
+		})

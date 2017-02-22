@@ -1,0 +1,25 @@
+doctype html
+html
+	head
+	title #{title}
+	meta(charset="utf-8")
+	meta(http-equiv="X-UA-Compatible" content="IE=edge,chrome=1")
+	meta(content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport")
+
+	include ./includes/styles
+
+	block meta
+		
+	body.skin-blue.layout-top-nav
+		.wrapper
+			.content-wrapper
+				section.content
+					block content
+			block footer
+		//
+			该块为了让子页可以添加一些body下的html
+		block toparea
+
+		include ./includes/scripts
+
+		block footerjs

@@ -1,0 +1,38 @@
+{
+    "items": [{
+        "text": "订单管理",
+        "href": "#",
+        "icon": "fa-th-list",
+        "children": [{
+            "text": "订单详情",
+            "href": "/order/order",
+            "icon": "fa-industry"
+        }]
+    }, {
+        "text": "库存管理",
+        "href": "#",
+        "icon": "fa-bar-chart",
+        "children": [{
+            "text": "库存记录",
+            "href": "/stock/stock",
+            "icon": ""
+        }, {
+            "text": "仓库管理",
+            "href": "/stock/stock_manage",
+            "icon": ""
+        }]
+    }, {
+        "text": "财务管理",
+        "href": "#",
+        "icon": "fa-money",
+        "children": [{
+            "text": "工资管理",
+            "href": "/finance/salary",
+            "icon": ""
+        }, {
+            "text": "费用管理",
+            "href": "/finance/money",
+            "icon": ""
+        }]
+    }]
+}

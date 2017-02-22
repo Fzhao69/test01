@@ -1,0 +1,75 @@
+doctype html
+html
+	head
+	meta(charset = 'utf-8')
+	meta(http-equiv="X-UA-Compatible" content="IE=edge,chrome=1")
+	style.
+		body{background-color:#373737;} 
+		#login{width:500px;height:300px;position:absolute;left:50%;margin-left:-250px;top:50%;margin-top:-150px;}
+		.login-title{text-align:center;color:#B9B9B9;letter-spacing:4px;margin-bottom:40px;}
+		.login-title h1{margin:0}
+		.login-body{text-align:center;}
+		#login-body-tips{color:grey;line-height:16px;padding-top:1px;letter-spacing:1px;font-width:normal}
+		#loginForm{position:relative;}
+		#loginForm .form-row{margin-bottom:16px;margin-top:10px;position:relative;}
+		#loginForm span{position:absolute;height:16px;width:16px;display:block;top:10px;left:85px;}
+		#login-user-span{background-image:url("/img/user.png");}
+		#login-psw-span{background-image:url("/img/psw.png")}
+		#loginForm input{width:255px;height:24px;border-radius:20px;border:1px solid grey;padding:5px 65px 5px 35px;font-size:18px;outline:none;letter-spacing:1px;background-color:rgba(0,0,0,0.16);color:#B9B9B9}
+		#loginForm #login-button{width:88px;height:88px;border-radius:50%;border:1px solid grey;position:absolute;top:0;right:45px;outline:none;cursor:pointer;background-color:#0CADDE;box-shadow:0 0 5px #272847}
+		#loginForm #login-button:hover {background-color:#1A5F74;border-color:#B6B5B5}
+		#loginForm #login-button:hover i{background-image:url("/img/arrow.png");}
+		#loginForm #login-button i{background-image:url("/img/arrow-2.png");width:64px;height:64px;display:block;margin-left:7px;}
+		input::-webkit-input-placeholder{font-size:12px;letter-spacing:1px;};	
+		input::-moz-placeholder { font-size:12px;letter-spacing:1px;}
+		input:-ms-input-placeholder {font-size:12px;letter-spacing:1px;}
+		.hide{display:none;}
+	body
+		#login
+			.login-title
+				h1 小型仓库系统
+			.login-body
+				.login-body-content
+					form#loginForm(method='post' action='/login/check_login')
+						.form-row
+							span#login-user-span
+							input#login-user(type='text' name='login[name]' placeholder='请输入用户名' onclick='showLoginTips(false)' autocomplete='off')
+						.form-row
+							span#login-psw-span
+							input#login-psw(type='password' name='login[password]' placeholder='请输入密码' onclick='showLoginTips(false)' autocomplete='off')
+						button#login-button(type='button') <i></i>
+				#login-body-tips
+					h5 #{error}
+
+		script(type="text/javascript").
+			var submitBtn = document.getElementById("login-button");
+			submitBtn.addEventListener('click',submitLogin);
+
+			function submitLogin(){
+				if(document.getElementById('login-user').value === ''){
+					showLoginTips("请输入用户名");
+					return false;
+				}
+				if(document.getElementById("login-psw").value === ''){
+					showLoginTips('请输入密码');
+					return false;
+				}
+				document.getElementById('loginForm').submit();
+			}
+			function showLoginTips(message){
+				var tips = document.getElementById("login-body-tips")
+				if(typeof message == 'string'){
+					tips.innerHTML = message;
+					tips.classList.remove('hide')
+				}
+				if(message == false){
+					tips.classList.add("hide");
+				}
+			}
+
+			document.onkeydown = function (event) {
+				e = event ? event : (window.event ? window.event : null);
+				(e.keyCode == 13) && submitLogin();
+			}		
+
+
