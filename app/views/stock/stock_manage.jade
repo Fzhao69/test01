@@ -1,6 +1,9 @@
 extends ../layout
 block meta
 	link(href='/libs/plugins/datetimepicker/bootstrap-datetimepicker.min.css',rel='stylesheet')
+	style.
+		#stock_url_img{padding:0 20%;margin:5px 0px;}
+		#swh-datatable_wrapper .headImg{width: 55px;border-radius: 50%;height: 55px;}
 block content
 	.row
 		.col-md-12
@@ -16,12 +19,19 @@ block toparea
 						span(aria-hidden='true') x
 					h4.modal-title 库存管理
 				.modal-body
-					form.form-horizontal(meth='post' role='form')
+					form.form-horizontal(meth='post' role='form' enctype='multipart/form-data')
 						input#stock_id(type='hidden' name='stock[_id]' value='')
 						.form-group
 							lable.control-lable.col-xs-2(for='stock_name') 名称
 							.col-xs-10
 								input#stock_name.form-control(type='text' name='stock[name]' autocomplete='off')
+						.form-group#stock_url_item
+							lable.control-lable.col-xs-2(for='stock_url') 商品图片
+							.col-xs-10
+								input#stock_url.form-control(type='file')
+								input#stock_url_id(type='hidden' name='stock[url]')
+							.col-xs-12#stock_url_img
+								img(src='' style='width:120px;height:80px;')
 						.form-group
 							lable.control-lable.col-xs-2(for='stock_code') 商品编码
 							.col-xs-10
@@ -90,10 +100,37 @@ block footerjs
 			var $dataTable,
 				submitUrl;
 
-
+			$('#stock_url').change(function(){
+				var form = new FormData();
+				var files = this.files[0];
+				var imgWarp = $('#stock_url_img');
+				if(files == undefined){
+					imgWarp.hide();
+				}
+				var type = files.name.split(".").pop().toLowerCase();
+				if(type != 'png' && type != 'jpg' && type !='jpeg' ){
+					$(this).val("");
+					return toastr.error("请选择 png 或 jpg 或 jpeg 格式的图片");
+				}
+				form.append('file',files);
+				$.ajax({
+					url:"/stock/stock_img_upload",
+					data:form,
+					method:"post",
+					contentType:false,
+					processData:false,
+					success:function(result){
+						imgWarp.show();
+						imgWarp.children("img").attr("src","../"+result.data.url);
+						$("#stock_url_id").val(result.data._id);
+					}
+				})
+			})
 			function addModal(){
 				submitUrl = '/stock/stock_manage_add'; 
 				modalTitle.html('新增商品');
+				$("#stock_url_item").show();
+				$("#stock_url_img").hide();
 				$('#stock_total').parent().prev().html("商品总数量");
 				modal.find('input').removeAttr("readonly").val("");
 				$('#stock_surplus_item').hide();
@@ -104,6 +141,7 @@ block footerjs
 			function plusAndMinus(name,data){
 				var lable = $('#stock_surplus_lable');
 				$('#stock_surplus_item').show();
+				$('#stock_url_item').hide();
 				if(name=='plus'){
 					submitUrl = '/stock/stock_manage_plus';
 					lable.html("商品入库数");
@@ -119,6 +157,7 @@ block footerjs
 				}
 				//填充数据
 				$("#stock_id").val(data._id);
+				$('#stock_url_id').val(data.url);
 				$('#stock_name').val(data.name).attr('readonly',true);
 				$('#stock_code').val(data.code).attr('readonly',true);
 				$('#stock_original_price').val((data.original_price/100).toFixed(2)).attr('readonly',true);
@@ -126,7 +165,7 @@ block footerjs
 				$('#stock_surplus').val("").removeAttr('readonly');
 				$("#stock_remark").val(data.remark).attr('readonly',true);
 				$('#stock_amount').val((data.amount/100).toFixed(2));
-				
+
 				modal.modal();
 			};
 
@@ -135,14 +174,18 @@ block footerjs
 				modalTitle.html("商品编辑");
 				$('#stock_total').parent().prev().html("商品总数量");
 				var lable = $("#stock_surplus_lable");
-				$('#stock_surplus_item').show();
 				lable.html('商品剩余量');
 				modal.find('input').removeAttr("readonly");
 				$("#stock_remark").removeAttr('readonly');
+				$('#stock_surplus_item').show();
+				$('#stock_url').val("");
+				$('#stock_url_img').hide();
+				$("#stock_url_item").show();
 				//填充数据
 				$("#stock_id").val(data._id);
 				$('#stock_name').val(data.name);
 				$('#stock_code').val(data.code);
+				$('#stock_url_id').val(data.url);
 				$('#stock_original_price').val((data.original_price/100).toFixed(2));
 				$('#stock_surplus').val(data.surplus).attr('readonly',true);
 				$('#stock_selling_price').val((data.selling_price/100).toFixed(2));
@@ -229,6 +272,7 @@ block footerjs
 				}
 			}).on('success.form.bv',function(e){
 				e.preventDefault();
+				console.log($('#stock_url').val())
 				$.ajax({
 					type:"post",
 					url:submitUrl,
@@ -250,7 +294,7 @@ block footerjs
 						//- toastr.error(result.error_message);
 						toastr.error('请求错误');
 					}
-					
+
 				})
 			});
 
@@ -263,49 +307,62 @@ block footerjs
 					orderable:false,
 				},
 				{
-					target:1,
+					targets: 1,
+					orderable: false,
+					width:"60px",
+					title:"商品图片",
+					render:function(data,type,full,meta){
+						if(full.url.length>0){
+							return "<img src='../"+full.url[0].url +"' class='headImg'>";
+						}else{
+							return '-'
+						}
+					}
+				},
+				{
+					target:2,
 					title:"商品名称",
 					data:"name",
 					orderable:false,
 				},
 				{
-					target:2,
+					target:3,
 					title:"商品编码",
 					data:"code",
 					orderable:false,
 				},
 				{
-					target:3,
+					target:4,
 					title:"商品原价",
 					data:function(item){
 						return (item.original_price/100).toFixed(2)
 					}
 				},
 				{
-					target:4,
+					target:5,
 					title:'商品售价',
 					data:function(item){
 						return (item.selling_price/100).toFixed(2);
 					}
 				},
 				{
-					target:5,
+					target:6,
 					title:"商品剩余量",
 					data:"surplus",
 				},
 				{
-					target:6,
+					target:7,
 					title:"商品总数量",
 					data:"total",
 				},{
-					target:7,
+					target:8,
 					title:"商品添加时间",
 					data:function(item){
 						return moment.unix(item.create_time).format('YYYY-MM-DD HH:mm:ss');
 					}
 				},
 				{
-					target:7,
+					target:9,
 					title:"备注",
 					data:"remark",
 					orderable:false
@@ -337,10 +394,10 @@ block footerjs
 						action:function(e,dt,node,conf){
 							var data = $dataTable.rows(".selected").data();
 							if(data.length===0){
-								 return toastr.error("请选择一种商品进行入库操作");
+								return toastr.error("请选择一种商品进行入库操作");
 							}
 							if(data.length>1){
-								 return toastr.error('只能选择一种商品进行入库操作')
+								return toastr.error('只能选择一种商品进行入库操作')
 							}
 							plusAndMinus('plus',data[0]);
 						}
@@ -350,10 +407,10 @@ block footerjs
 						action:function(e,dt,node,conf){
 							var data = $dataTable.rows(".selected").data();
 							if(data.length===0){
-								 return toastr.error("请选择一种商品进行出库操作");
+								return toastr.error("请选择一种商品进行出库操作");
 							}
 							if(data.length>1){
-								 return toastr.error('只能选择一种商品进行出库操作')
+								return toastr.error('只能选择一种商品进行出库操作')
 							}
 							plusAndMinus('minus',data[0]);
 						}
@@ -362,11 +419,12 @@ block footerjs
 						action:function(e,dt,node,conf){
 							var data = $dataTable.rows(".selected").data();
 							if(data.length===0){
-								 return toastr.error("请选择一种商品进行编辑");
+								return toastr.error("请选择一种商品进行编辑");
 							}
 							if(data.length>1){
-								 return toastr.error('只能选择一种商品进行编辑')
+								return toastr.error('只能选择一种商品进行编辑')
 							}
+							console.log(data[0])
 							editModal(data[0]);
 						}
 					},
@@ -426,7 +484,18 @@ block footerjs
 				$dataTable.settings()[0].ajax.data = param;
 				$dataTable.ajax.reload();
 			});
-
+			$('#swh-datatable tbody').on('mouseover','.headImg',function(){
+				var url = $(this).attr('src');
+					$(this).popover({
+						trigger:'manual',
+						html:true,
+						content:"<img src='"+url+"' style='max-width:450px;max-height:300px;'>"
+					})
+				$(this).popover('show')
+			});
+			$('#swh-datatable tbody').on('mouseout','.headImg',function(){
+				$(this).popover('hide')
+			});
 		});
 
 

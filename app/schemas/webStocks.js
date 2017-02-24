@@ -9,6 +9,7 @@ var WebStocksSchema = new mongoose.Schema({
     total:Number,
     remark:String,
     create_time:Number,
-    amount:Number
+    amount:Number,
+    url:[{ type: Schema.Types.ObjectId, ref: "WebImg" }]
 });
 module.exports = WebStocksSchema;

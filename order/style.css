@@ -1,0 +1,8 @@
+*{padding: 0;margin:0;}
+body{background-color:#70C4E0;}
+.wrap{
+    width: 1200px;
+    margin: 0 auto;
+}
+header{width: 100%;background-image: url('img/swhbanner.jpg');background-position: center center;height: 250px;background-size: cover;text-align: center}
+header h1{color: #FFF;padding-top: 120px;letter-spacing: 1px;}
