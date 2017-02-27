@@ -134,7 +134,7 @@ block footerjs
 				$('#stock_total').parent().prev().html("商品总数量");
 				modal.find('input').removeAttr("readonly").val("");
 				$('#stock_surplus_item').hide();
-				modal.find('textarea').val("");
+				modal.find('textarea').val("").removeAttr("readonly");
 				modal.modal();
 			};
 
@@ -157,7 +157,9 @@ block footerjs
 				}
 				//填充数据
 				$("#stock_id").val(data._id);
-				$('#stock_url_id').val(data.url[0]._id);
+				if(data.url){
+					$('#stock_url_id').val(data.url[0]._id);
+				}
 				$('#stock_name').val(data.name).attr('readonly',true);
 				$('#stock_code').val(data.code).attr('readonly',true);
 				$('#stock_original_price').val((data.original_price/100).toFixed(2)).attr('readonly',true);
@@ -184,7 +186,9 @@ block footerjs
 				$("#stock_id").val(data._id);
 				$('#stock_name').val(data.name);
 				$('#stock_code').val(data.code);
-				$('#stock_url_id').val(data.url[0]._id);
+				if(data.url){
+					$('#stock_url_id').val(data.url[0]._id);
+				}
 				$('#stock_original_price').val((data.original_price/100).toFixed(2));
 				$('#stock_surplus').val(data.surplus).attr('readonly',true);
 				$('#stock_selling_price').val((data.selling_price/100).toFixed(2));
@@ -311,7 +315,7 @@ block footerjs
 					width:"60px",
 					title:"商品图片",
 					render:function(data,type,full,meta){
-						if(full.url.length>0){
+						if(full.url){
 							return "<img src='../"+full.url[0].url +"' class='headImg'>";
 						}else{
 							return '-'

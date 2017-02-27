@@ -41,6 +41,9 @@ var StockController = {
             .populate({
                 path: "url"
             })
+            .sort({
+                "create_time": -1
+            })
             .then(function (result) {
                 var data = {
                     draw: 1,
@@ -204,7 +207,9 @@ var StockController = {
         var stock = req.body.stock;
         var _id = stock._id;
         delete stock._id;
+        console.log(stock)
         if (_id.length < 1) {
+            stock.url = null;
             stocksModel.create(stock)
                 .then(function (result) {
                     next({
