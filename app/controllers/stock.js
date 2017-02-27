@@ -207,9 +207,8 @@ var StockController = {
         var stock = req.body.stock;
         var _id = stock._id;
         delete stock._id;
-        console.log(stock)
         if (_id.length < 1) {
-            stock.url = null;
+            if(stock.url == ''){stock.url = null;}
             stocksModel.create(stock)
                 .then(function (result) {
                     next({
@@ -222,6 +221,7 @@ var StockController = {
                     next(e);
                 })
         } else {
+            stock.url = mongoose.Types.ObjectId(stock.url);
             stocksModel.update({
                     _id: _id
                 }, stock)
