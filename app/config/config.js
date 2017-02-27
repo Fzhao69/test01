@@ -13,4 +13,5 @@ module.exports = {
 		var port = this.DB_PORT === "27017" ? "" : ":" + this.DB_PORT;
 		return (protocol + account + this.DB_HOST + port + "/" + this.DB_NAME);
 	}
+	
 }
