@@ -1,9 +1,9 @@
 module.exports = {
-	DB_HOST:"127.0.0.1",
-	DB_PORT: "27017",
-	DB_NAME: "warehouse",
-	DB_USERNAME: "",
-	DB_PASSWORD: "",
+	DB_HOST:"192.168.1.97",
+	DB_PORT: "30153",
+	DB_NAME: "b691557c42f84",
+	DB_USERNAME: "408e9fb358544",
+	DB_PASSWORD: "c1ffe83925094",
 	SESSION_KEY:"warehouse_",
 	SESSION_TABLE:"admin_sessions",
 
