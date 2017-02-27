@@ -291,7 +291,7 @@ block footerjs
 							$form.data('bootstrapValidator').resetForm(true); //清除表单验证
 							return toastr.error(result.error_message);
 						}
-						//- toastr.error(result.error_message);
+						toastr.error(result.error_message);
 						toastr.error('请求错误');
 					}
 
