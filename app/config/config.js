@@ -1,6 +1,6 @@
 module.exports ={
 	DB_HOST:"192.168.1.97",
-	DB_PORT: "`30139`",
+	DB_PORT: "`30139",
 	DB_NAME: "a9ecb1d6d9664",
 	DB_USERNAME: "1104a761af3b4",
 	DB_PASSWORD: "ee83f95bbe524",
