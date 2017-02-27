@@ -1,0 +1,55 @@
+[{
+    "order_amount":400000,
+    "remark":"",
+    "start_time":1485792000,
+    "end_time":1483200000,
+    "salary_amount":300000,
+    "commodity_amount":1234000,
+    "other_amount":3000
+},
+{
+    "order_amount":450000,
+    "remark":"",
+    "start_time":1485878400,
+    "end_time":1487227573,
+    "salary_amount":350000,
+    "commodity_amount":1254000,
+    "other_amount":1000
+},
+{
+    "order_amount":200000,
+    "remark":"",
+    "start_time":1469894400,
+    "end_time":1467302400,
+    "salary_amount":200000,
+    "commodity_amount":2234000,
+    "other_amount":2000
+},
+{
+    "order_amount":400000,
+    "remark":"",
+    "start_time":1472572800,
+    "end_time":1469980800,
+    "salary_amount":400000,
+    "commodity_amount":4234000,
+    "other_amount":4000
+},
+{
+    "order_amount":600000,
+    "remark":"",
+    "start_time":1475164800,
+    "end_time":1472659200,
+    "salary_amount":600000,
+    "commodity_amount":1634000,
+    "other_amount":3600
+},
+{
+    "order_amount":800000,
+    "remark":"",
+    "start_time":1480435200,
+    "end_time":1477929600,
+    "salary_amount":680000,
+    "commodity_amount":8634000,
+    "other_amount":3800
+}
+]

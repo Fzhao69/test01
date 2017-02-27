@@ -18,6 +18,7 @@ app.set('view engine', 'jade');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(favicon(path.join(__dirname, 'public/img', 'favicon.ico')));
 
+
 //连接数据库
 mongoose.connect(config.getConnectionUri());
 //加载所有模块
@@ -41,9 +42,6 @@ app.use(session({
 
 //日志
 app.use(require("./app/midwares/logSave"));
-
-
-
 // 登录验证
 app.use(require("./app/midwares/loginRequire"));
 // 权限控制
@@ -52,10 +50,22 @@ app.use(require("./app/midwares/accessControll"));
 app.use(require("./app/midwares/initial/initMenuData"));
 //用户初始化
 app.use(require("./app/midwares/initial/initUserData"));
+//商品初始化
+app.use(require("./app/midwares/initial/initStockMenuData"));
+//订单初始化
+app.use(require("./app/midwares/initial/initOrderData"));
+//费用初始化
+app.use(require('./app/midwares/initial/initMoneyData'));
+//工资初始化
+app.use(require("./app/midwares/initial/initSalaryData"));
 //月初商品更新
 app.use(require("./app/midwares/update/commodityUpdate"));
 // 费用管理更新
 app.use(require('./app/midwares/update/moneyUpdate'));
+
+
+
+
 //路由设置
 app.use('/', require('./app/routes/index'));
 app.use('/user',require('./app/routes/user'));

@@ -58,7 +58,7 @@ var StockController = {
     },
     //图片上传
     stockImgUpload: function (req, res, next) {
-        console.log(req.file);
+        // console.log(req.file);
         imgModel.create({
             url: "img/stock_img/" + req.file.filename
         }).then(function (result) {
