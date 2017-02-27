@@ -58,7 +58,6 @@ var StockController = {
     },
     //图片上传
     stockImgUpload: function (req, res, next) {
-        // console.log(req.file);
         imgModel.create({
             url: "img/stock_img/" + req.file.filename
         }).then(function (result) {
@@ -259,7 +258,6 @@ var StockController = {
         data.path = {
             $regex: param.selectValue
         }
-        // console.log(param)
         if (param.timeStart != '' || param.timeEnd != '') {
             if (param.timeStart != '' && param.timeEnd != '') {
                 data.time = {
@@ -288,7 +286,6 @@ var StockController = {
                 }
             }];
         }
-        // console.log(data)
         logModel.find(data).sort({
                 'time': -1
             })

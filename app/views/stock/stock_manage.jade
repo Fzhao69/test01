@@ -157,7 +157,7 @@ block footerjs
 				}
 				//填充数据
 				$("#stock_id").val(data._id);
-				$('#stock_url_id').val(data.url);
+				$('#stock_url_id').val(data.url[0]._id);
 				$('#stock_name').val(data.name).attr('readonly',true);
 				$('#stock_code').val(data.code).attr('readonly',true);
 				$('#stock_original_price').val((data.original_price/100).toFixed(2)).attr('readonly',true);
@@ -165,7 +165,6 @@ block footerjs
 				$('#stock_surplus').val("").removeAttr('readonly');
 				$("#stock_remark").val(data.remark).attr('readonly',true);
 				$('#stock_amount').val((data.amount/100).toFixed(2));
-
 				modal.modal();
 			};
 
@@ -185,7 +184,7 @@ block footerjs
 				$("#stock_id").val(data._id);
 				$('#stock_name').val(data.name);
 				$('#stock_code').val(data.code);
-				$('#stock_url_id').val(data.url);
+				$('#stock_url_id').val(data.url[0]._id);
 				$('#stock_original_price').val((data.original_price/100).toFixed(2));
 				$('#stock_surplus').val(data.surplus).attr('readonly',true);
 				$('#stock_selling_price').val((data.selling_price/100).toFixed(2));
@@ -272,7 +271,7 @@ block footerjs
 				}
 			}).on('success.form.bv',function(e){
 				e.preventDefault();
-				console.log($('#stock_url').val())
+				//- console.log($('#stock_url').val())
 				$.ajax({
 					type:"post",
 					url:submitUrl,
@@ -424,7 +423,7 @@ block footerjs
 							if(data.length>1){
 								return toastr.error('只能选择一种商品进行编辑')
 							}
-							console.log(data[0])
+							//- console.log(data[0])
 							editModal(data[0]);
 						}
 					},
@@ -457,7 +456,6 @@ block footerjs
 			});
 			$('#dt-select-all').on('click', function () {
 				var rows = $dataTable.rows({'search': 'applied'}).nodes();
-				console.log(this)
 				$('input[type="checkbox"]', rows).prop('checked', this.checked);
 				if(this.checked)
 					$(rows).addClass('selected');
@@ -480,7 +478,6 @@ block footerjs
 					param.timeStart=Math.round(new Date($('#sea_ip2').val()).getTime() / 1000);
 				if($('#sea_ip3').val() != '')
 					param.timeEnd=Math.round(new Date($('#sea_ip3').val()).getTime() / 1000);
-				console.log(param)
 				$dataTable.settings()[0].ajax.data = param;
 				$dataTable.ajax.reload();
 			});
