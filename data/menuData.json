@@ -6,7 +6,7 @@
         "children": [{
             "text": "订单详情",
             "href": "/order/order",
-            "icon": "fa-industry"
+            "icon": ""
         }]
     }, {
         "text": "库存管理",
