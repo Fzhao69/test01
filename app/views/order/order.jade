@@ -243,8 +243,13 @@ block footerjs
 				{
 					target:5,
 					title:'订单完成时间',
-					data:"finished_time",
-					defaultContent:"订单未完成"
+					data:function(item){
+						if(item.finished_time){
+							return moment.unix(item.finished_time).format("YYYY-MM-DD HH:mm:ss")
+						}else{
+							return "订单未完成"
+						}
+					}
 				},{
 					target:6,
 					title:"订单生成时间",

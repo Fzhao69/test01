@@ -3,7 +3,7 @@ mongoose.Promise = require("bluebird");
 var UserModel = require('../models/webUser');
 module.exports = function(req, res, next) {
     var notCheck = ['/', '/show_main_view'];
-    if ('/login' === req.path.substr(0, 6)) {
+    if ('/login' === req.path.substr(0, 6) || '/data' === req.path.substr(0,5)) {
         return next();
     }
     for (var i = 0; i < notCheck.length; i++) {

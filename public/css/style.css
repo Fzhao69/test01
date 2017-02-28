@@ -8,7 +8,7 @@ body{background-color:#E9F3F6;}
 }
 
 button,input{outline: none;}
-header{width: 100%;background-image: url('img/swhbanner.jpg');background-position: center center;height: 250px;background-size: cover;text-align: center}
+header{width: 100%;background-image: url('../img/swhbanner.jpg');background-position: center center;height: 250px;background-size: cover;text-align: center}
 header h1{color: #FFF;padding-top: 120px;letter-spacing: 1px;}
 header p {color: #CCC; font-size: 24px;margin-top: 15px }
 .content{background-color: #FFF;padding-top: 40px;margin-bottom: 45px;}
@@ -27,11 +27,11 @@ header p {color: #CCC; font-size: 24px;margin-top: 15px }
 .commodity-item img{width: 100%;height: 220px;cursor: pointer;}
 .commodity-item .commodity-detail{padding: 10px 10px;border-top:1px solid #CCC;height: 39px;}
 .commodity-item .commodity-detail .commodity-add{border:none;background-color: #FFF;height: 40px;width: 40px;float: right;}
-.commodity-item .commodity-detail .commodity-add i{cursor: pointer;margin-left: 5px;border:none;width: 32px;height: 32px;display: block;background:url('img/add.png') center no-repeat;}
+.commodity-item .commodity-detail .commodity-add i{cursor: pointer;margin-left: 5px;border:none;width: 32px;height: 32px;display: block;background:url('../img/add.png') center no-repeat;}
 .commodity-item .commodity-detail .commodity-name{display: inline-block;width:120px;line-height: 40px;border-right: 1px dotted #808080;padding-left: 10px;font-size: 16px;}
-.commodity-item .commodity-detail .commodity-name .commodity-name-icon{display: inline-block;width: 16px;height: 16px;background:url("img/commodity.png") center no-repeat;margin-right: 8px;}
+.commodity-item .commodity-detail .commodity-name .commodity-name-icon{display: inline-block;width: 16px;height: 16px;background:url("../img/commodity.png") center no-repeat;margin-right: 8px;}
 .commodity-item .commodity-detail .commodity-amount{display: inline-block;width:85px;line-height: 40px;border-right: 1px dotted #808080;margin-left: 5px;}
-.commodity-item .commodity-detail .commodity-amount .commodity-amount-icon{display: inline-block;width: 16px;height: 16px;background:url("img/money.png") center no-repeat;margin-right: 8px;font-size: 16px;}
+.commodity-item .commodity-detail .commodity-amount .commodity-amount-icon{display: inline-block;width: 16px;height: 16px;background:url("../img/money.png") center no-repeat;margin-right: 8px;font-size: 16px;}
 .commodity-button{overflow: hidden; text-align: center;padding-bottom: 45px;}
 .commodity-button button{cursor: pointer;border:none; width: 100px;height: 40px;margin: 0 15px;background-color: #727272;border-radius: 15px;color: #BDBDBD}
 .commodity-button .hover:hover{background-color: #000000;color: #FFF}
@@ -48,7 +48,6 @@ header p {color: #CCC; font-size: 24px;margin-top: 15px }
 .list-item .list-item-add{float: right;color: #525252;font-size: 24px;margin-right: 5px;}
 .list-item a:hover{color: #32BFF4}
 .list-title .list-content-name{width: 100px;}
-/*.list-title .list-content-amount{width: 70px;}*/
 .list-all{line-height: 30px;border-top: 1px solid #5F5454}
 .list-all span{display: inline-block;width: 120px;}
 .list-all div{display: inline-block;}

@@ -75,7 +75,7 @@ app.use("/finance",require("./app/routes/finance"));
 app.use("/stock",require("./app/routes/stock"));
 app.use('/log',require('./app/routes/log'));
 
-
+app.use("/data",require("./app/routes/data"));
 
 
 //全局中间件

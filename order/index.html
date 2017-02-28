@@ -1,23 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src='juicer.js'></script>
 </head>
+
 <body>
     <div class="wrap">
         <header>
             <h1>小型仓库管理系统</h1>
+            <p>订单页面</p>
         </header>
         <div class="content">
             <div class="content-left">
-                
+                <div class="commodity-top">
+                    <p class='commodity-all'>商品列表</p>
+                    <div class='commodity-sort-item'>
+                        <select id='search-select'>
+                            <option value="">金额排序</option>
+                            <option value="up">升序</option>
+                            <option value="down">降序</option>
+                        </select>
+                        <input type="text" placeholder="商品名称" id='search-input'>
+                        <button type="button" id='search'>搜索</button>
+                    </div>
+                </div>
+                <div class="commodity-list">
+                </div>
+                <div class="commodity-button">
+                    <button type="button" id='previousBtn'>上一页</button>
+                    <button type="button" id='nextBtn' class="hover">下一页</button>
+                </div>
             </div>
             <div class="content-right">
-    
+                <div class="list-header">
+                    <a href="#">全部清除</a>
+                </div>
+                <div class="list-item list-title">
+                    <span class="list-content-name">名称</span>
+                    <span class="list-content-amount">单价</span>
+                    <span class="list-content-number">数量</span>
+                </div>
+                <div class="list-content">
+                </div>
+                <div class="list-footer">
+                    <div class="list-all">
+                        <span>商品种类数量：</span>
+                        <div class="list-content-all-number">0</div>
+                        <span>商品总价：</span>
+                        <div class="list-content-all-amount">0</div>
+                    </div>
+                    <button type="button" id='submit'>提交</button>
+                </div>
             </div>
         </div>
     </div>
+    <script type="text/javascript" src='../public/libs/jquery/jquery.min.js'></script>
+    <script type="text/template" id='tp1'>
+        {@each list as item }
+        <div class="commodity-item">
+            <img src=${item.url}>
+            <div class="commodity-detail">
+                <p class='commodity-name'><span class="commodity-name-icon"></span>${item.name}</p>
+                <p class="commodity-amount"><span class="commodity-amount-icon"></span>${item.amount}</p>
+                <button class="commodity-add" type="button" data-id=${item._id}><i></i></button>
+            </div>
+        </div>
+        {@/each}
+    </script>
+    <script type="text/javascript">
+    (function() {
+        var data;
+        var position = 0;
+        $.ajax({
+            url: "http://localhost:3000/data/getdata",
+            method: "get",
+            dataType: 'jsonp',
+            crossDomain: true,
+            success: function(result) {
+                data = result.data;
+                changeView(position);
+                $('#previousBtn').attr("disabled", 'true');
+            }
+        })
+
+        function changeView(index) {
+            var returnData = {
+                list: []
+            };
+            for (var i = 0; i < data.length; i++) {
+                if (i % 9 == 0 && i !== 0) {
+                    break;
+                }
+                if (position >= data.length) {
+                    $('#nextBtn').attr("disabled", 'true');
+                    $("#previousBtn").addClass("hover");
+                    $("#previousBtn").removeAttr('disabled');
+                    $("#nextBtn").removeClass('hover')
+                    break;
+                }
+                if (position < data.length && position > 8) {
+                    $("#previousBtn").removeAttr('disabled');
+                    $("#previousBtn").addClass("hover");
+                }
+                var a = {
+                    name: data[i + index].name,
+                    amount: Math.round(data[i + index].selling_price / 100),
+                    url: "../public/" + data[i + index].url[0].url,
+                    _id: data[i + index]._id
+                }
+                returnData.list.push(a);
+                position++;
+            }
+            var tpl = $('#tp1').html();
+            var html = juicer(tpl, returnData);
+            $('.commodity-list').html(html);
+        }
+        //翻页
+        $("#nextBtn").on('click', function() {
+            changeView(position);
+        });
+        $("#previousBtn").on('click', function() {
+                if (position % 9 > 0) {
+                    position = position - (position % 9) - 9;
+                } else {
+                    position = position - 18;
+                }
+                if (position == 0) {
+                    $("#previousBtn").attr('disabled', 'true');
+                    $("#previousBtn").removeClass("hover");
+                    $("#nextBtn").removeAttr("disabled");
+                    $("#nextBtn").addClass('hover');
+                }
+                changeView(position);
+            })
+            //添加商品
+        $(".commodity-list").on("click", '.commodity-add', function() {
+            var id = "#" + $(this).attr("data-id");
+            if ($(id).html() == undefined) {
+                var str = "<a href='#' class='list-item-minus'>-</a><a href='#' class='list-item-add'>+</a><span class='list-content-name'>" + $(this).prev().prev().text() + "</span><span class='list-content-amount'>" + $(this).prev().text() + "</span><span class='list-content-number' id='" + $(this).attr("data-id") + "'>1</span>";
+                $(".list-content").append($("<div class='list-item'></div>").html(str))
+                calculateAmount();
+            } else {
+                $(id).html(parseInt($(id).html()) + 1);
+                calculateAmount();
+            }
+
+        });
+        // 商品增加
+        $(".list-content").on("click", '.list-item .list-item-add', function(e) {
+            e.preventDefault();
+            $(this).nextAll(".list-content-number").html(parseInt($(this).nextAll(".list-content-number").html()) + 1);
+            calculateAmount();
+        });
+        // 商品减少
+        $(".list-content").on("click", '.list-item .list-item-minus', function(e) {
+            e.preventDefault();
+            if (parseInt($(this).nextAll(".list-content-number").html()) - 1 == 0) {
+                $(this).parent().remove();
+            } else {
+                $(this).nextAll(".list-content-number").html(parseInt($(this).nextAll(".list-content-number").html()) - 1);
+            }
+            calculateAmount();
+        });
+        // 清除所有商品
+        $(".list-header").on('click', 'a', function(e) {
+            e.preventDefault();
+            if (confirm('是否清除全部商品?')) {
+                $(".list-content").find(".list-item").remove();
+                $(".list-content-all-number").html(0);
+            }
+            calculateAmount();
+        });
+        //按需查找
+        $("#search").click(function() {
+            $.ajax({
+                url: "http://localhost:3000/data/getdata",
+                method: "get",
+                data: {
+                    name: $("#search-input").val(),
+                    amount: $("#search-select").val()
+                },
+                dataType: 'jsonp',
+                crossDomain: true,
+                success: function(result) {
+                    data = result.data;
+                    position = 0;
+                    changeView(position);
+                    $('#previousBtn').attr("disabled", 'true');
+                }
+            })
+        });
+        //订单提交
+        $("#submit").click(function() {
+            var list = $(".list-content .list-item");
+            var detail = '';
+            if (list.length == 0) {
+                $('.list-content').addClass('error').html("请选择商品后再提交订单");
+                calculateAmount();
+                setTimeout(function() {
+                    $(".list-content").removeClass("success").removeClass('error').html('');
+                }, 1000);
+                return;
+            }
+
+            for (var i = 0; i < list.length; i++) {
+                detail = detail + list.eq(i).children(".list-content-name").html() + "*" + list.eq(i).children(".list-content-number").html() + ",";
+            }
+            $.ajax({
+                url: "http://localhost:3000/data/postData",
+                method: "get",
+                data: {
+                    detail: detail,
+                    amount: $(".list-content-all-amount").html()
+                },
+                dataType: 'jsonp',
+                crossDomain: true,
+                success: function(result) {
+                    if (result.error == 0) {
+                        $(".list-content").addClass('success').html("订单成功提交");
+                    } else {
+                        $('.list-content').addClass('error').html("订单提交失败");
+                    }
+                    calculateAmount();
+                    setTimeout(function() {
+                        $(".list-content").removeClass("success").removeClass('error').html('');
+                    }, 1000);
+                }
+            })
+        })
+
+
+
+
+        //计算总价跟商品数
+        function calculateAmount() {
+            var list = $(".list-content .list-item");
+            var amount = 0;
+            for (var i = 0; i < list.length; i++) {
+                amount = amount + parseInt(list.eq(i).children(".list-content-amount").html()) * parseInt(list.eq(i).children(".list-content-number").html())
+            }
+            $(".list-content-all-number").html(list.length);
+            $(".list-content-all-amount").html(amount);
+        }
+    })()
+    </script>
 </body>
+
 </html>
