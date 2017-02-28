@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
-    <script type="text/javascript" src='juicer.js'></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src='libs/juicer.js'></script>
 </head>
 
 <body>
@@ -58,7 +58,7 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src='../public/libs/jquery/jquery.min.js'></script>
+    <script type="text/javascript" src='libs/jquery/jquery.min.js'></script>
     <script type="text/template" id='tp1'>
         {@each list as item }
         <div class="commodity-item">
@@ -76,10 +76,8 @@
         var data;
         var position = 0;
         $.ajax({
-            url: "http://localhost:3000/data/getdata",
+            url: "/data/getdata",
             method: "get",
-            dataType: 'jsonp',
-            crossDomain: true,
             success: function(result) {
                 data = result.data;
                 changeView(position);
@@ -178,14 +176,12 @@
         //按需查找
         $("#search").click(function() {
             $.ajax({
-                url: "http://localhost:3000/data/getdata",
+                url: "/data/getdata",
                 method: "get",
                 data: {
                     name: $("#search-input").val(),
                     amount: $("#search-select").val()
                 },
-                dataType: 'jsonp',
-                crossDomain: true,
                 success: function(result) {
                     data = result.data;
                     position = 0;
@@ -211,14 +207,12 @@
                 detail = detail + list.eq(i).children(".list-content-name").html() + "*" + list.eq(i).children(".list-content-number").html() + ",";
             }
             $.ajax({
-                url: "http://localhost:3000/data/postData",
+                url: "/data/postData",
                 method: "get",
                 data: {
                     detail: detail,
                     amount: $(".list-content-all-amount").html()
                 },
-                dataType: 'jsonp',
-                crossDomain: true,
                 success: function(result) {
                     if (result.error == 0) {
                         $(".list-content").addClass('success').html("订单成功提交");
